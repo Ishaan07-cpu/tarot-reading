@@ -51,71 +51,19 @@
       background: rgba(212,168,83,0.07);
     }
     .email-hint {
-      font-size: 0.85rem;
+      font-size: 0.9rem;
       color: var(--white-dim);
       text-align: center;
       margin-bottom: 0.5rem;
+      line-height: 1.5;
     }
-    .email-hint strong { color: var(--gold-light); }
-
-    /* ── Test OTP Card ── */
-    .test-otp-card {
-      display: none;
-      background: linear-gradient(135deg, rgba(212,168,83,0.14), rgba(42,16,96,0.5));
-      border: 1px solid rgba(212,168,83,0.45);
-      border-radius: 12px;
-      padding: 1rem 1.2rem;
-      margin: 1rem 0 1.2rem;
+    .email-hint strong { color: var(--gold-light); word-break: break-all; }
+    .inbox-note {
+      font-size: 0.78rem;
+      color: rgba(255,255,255,0.55);
       text-align: center;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-    }
-    .test-otp-card.active { display: block; }
-    .test-otp-badge {
-      font-size: 0.72rem;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: var(--gold-light);
-      font-weight: 600;
-      margin-bottom: 0.4rem;
-    }
-    .test-otp-code-row {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 1rem;
-      margin: 0.4rem 0;
-    }
-    .test-otp-number {
-      font-family: Consolas, monospace;
-      font-size: 1.6rem;
-      font-weight: 900;
-      color: #f0cc7a;
-      letter-spacing: 0.2em;
-      background: rgba(0,0,0,0.4);
-      padding: 0.2rem 0.8rem;
-      border-radius: 8px;
-      border: 1px dashed rgba(212,168,83,0.5);
-    }
-    .btn-autofill {
-      background: linear-gradient(135deg, var(--gold), #f0cc7a);
-      color: #0d0618;
-      border: none;
-      border-radius: 6px;
-      font-weight: 700;
-      font-size: 0.8rem;
-      padding: 0.5rem 0.9rem;
-      cursor: pointer;
-      transition: transform 0.2s, box-shadow 0.2s;
-    }
-    .btn-autofill:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 4px 12px rgba(212,168,83,0.4);
-    }
-    .test-otp-hint {
-      font-size: 0.74rem;
-      color: rgba(255,255,255,0.7);
-      line-height: 1.4;
-      margin-top: 0.4rem;
+      margin-top: 0.2rem;
+      margin-bottom: 1.2rem;
     }
 
     .resend-row {
@@ -144,23 +92,12 @@
   <div class="auth-page">
     <div class="auth-container reveal">
       <div class="auth-logo">📬</div>
-      <h1 class="auth-title">Verify Your Email</h1>
-      <p class="auth-subtitle">Enter your 6-digit cosmic verification code.</p>
-
-      <!-- Test OTP Banner (when live email is not configured in .env) -->
-      <div class="test-otp-card" id="testOtpCard">
-        <div class="test-otp-badge">✦ Verification Code Ready</div>
-        <div class="test-otp-code-row">
-          <span class="test-otp-number" id="testOtpNumber">------</span>
-          <button type="button" class="btn-autofill" id="btnAutoFillOtp">Auto-Fill Code ⚡</button>
-        </div>
-        <p class="test-otp-hint">
-          Live email dispatch is in development mode. Click <strong>Auto-Fill Code</strong> to verify instantly, or enter the code manually.
-        </p>
-      </div>
+      <h1 class="auth-title">Check Your Inbox</h1>
+      <p class="auth-subtitle">We sent a 6-digit cosmic verification code to your email.</p>
 
       <form id="otpForm" novalidate>
-        <p class="email-hint">Account: <strong id="emailDisplay">your email</strong></p>
+        <p class="email-hint">Code sent to: <strong id="emailDisplay">your email</strong></p>
+        <p class="inbox-note">Please check your inbox (or spam / promotions folder if not seen within a minute).</p>
 
         <div class="otp-inputs" id="otpInputs">
           <input class="otp-digit" type="text" inputmode="numeric" maxlength="1" id="d1" autocomplete="off" />
@@ -191,38 +128,12 @@
     const verifyBtn = document.getElementById('verifyBtn');
     const resendBtn = document.getElementById('resendBtn');
     const emailDisplay = document.getElementById('emailDisplay');
-    const testOtpCard = document.getElementById('testOtpCard');
-    const testOtpNumber = document.getElementById('testOtpNumber');
-    const btnAutoFillOtp = document.getElementById('btnAutoFillOtp');
 
     const pendingEmail = sessionStorage.getItem('pending_otp_email') || '';
     if (pendingEmail) {
       emailDisplay.textContent = pendingEmail;
     } else {
       window.location.href = 'signup.html';
-    }
-
-    // ── Check for Dev / Test OTP ──────────────────────────────────
-    function checkDevOtp() {
-      const devOtp = sessionStorage.getItem('pending_dev_otp');
-      if (devOtp && devOtp.length === 6) {
-        testOtpNumber.textContent = devOtp;
-        testOtpCard.classList.add('active');
-      } else {
-        testOtpCard.classList.remove('active');
-      }
-    }
-    checkDevOtp();
-
-    // ── Auto-Fill button ──────────────────────────────────────────
-    if (btnAutoFillOtp) {
-      btnAutoFillOtp.addEventListener('click', () => {
-        const code = testOtpNumber.textContent.trim();
-        if (code && code.length === 6) {
-          fillCode(code);
-          otpForm.requestSubmit();
-        }
-      });
     }
 
     function fillCode(str) {
@@ -272,7 +183,7 @@
     otpForm.addEventListener('submit', async e => {
       e.preventDefault();
       const otp = getOtp();
-      if (otp.length < 6) return showMsg('error', 'Please enter the full 6-digit code.');
+      if (otp.length < 6) return showMsg('error', 'Please enter the full 6-digit verification code.');
 
       verifyBtn.disabled = true;
       verifyBtn.textContent = 'Verifying with the Cosmos…';
@@ -289,7 +200,6 @@
           localStorage.setItem('tarot_token', data.token);
           localStorage.setItem('tarot_user', JSON.stringify(data.user));
           sessionStorage.removeItem('pending_otp_email');
-          sessionStorage.removeItem('pending_dev_otp');
           showMsg('success', `✦ Account verified! Welcome, ${data.user.name}. Redirecting…`);
           setTimeout(() => { window.location.href = 'profile.html'; }, 1200);
         } else {
@@ -327,7 +237,7 @@
 
     resendBtn.addEventListener('click', async () => {
       resendBtn.disabled = true;
-      resendBtn.textContent = 'Generating…';
+      resendBtn.textContent = 'Sending…';
       try {
         const res = await fetch('/api/auth/resend-otp', {
           method: 'POST',
@@ -337,11 +247,7 @@
         const data = await res.json();
 
         if (res.ok && data.success) {
-          if (data.devOtp) {
-            sessionStorage.setItem('pending_dev_otp', data.devOtp);
-            checkDevOtp();
-          }
-          showMsg('success', data.message || 'New verification code generated.');
+          showMsg('success', data.message || 'A fresh code has been sent to your email.');
           resendBtn.textContent = 'Resend Code (60s)';
           startCountdown();
         } else {

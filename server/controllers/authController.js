@@ -1,19 +1,19 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
-const { isEmailConfigured, sendOTPEmail, sendWelcomeEmail } = require('../utils/emailService');
+const { sendOTPEmail, sendWelcomeEmail } = require('../utils/emailService');
 
 const signToken = (id) =>
   jwt.sign({ id }, process.env.JWT_SECRET || 'tarot_cosmic_secret_key_8492049281', {
     expiresIn: '7d',
   });
 
-// ── Signup: create account & generate OTP ───────────────────────
+// ── Signup: create account & dispatch OTP email ─────────────────
 exports.signup = async (req, res, next) => {
   try {
     const { name, email, password } = req.body;
 
     if (!name || !email || !password) {
-      return res.status(400).json({ success: false, message: 'Please provide your name, email, and password.' });
+      return res.status(400).json({ success: false, message: 'Please provide your full name, email, and password.' });
     }
 
     if (password.length < 6) {
@@ -31,10 +31,10 @@ exports.signup = async (req, res, next) => {
       });
     }
 
-    // If account exists but is unverified, update their credentials and send fresh OTP
+    // If account exists but is unverified, update details and send fresh OTP
     if (user && !user.isVerified) {
       user.name = name.trim();
-      user.password = password; // pre-save hook will hash it
+      user.password = password; // pre-save hook hashes this
     } else {
       user = new User({
         name: name.trim(),
@@ -47,19 +47,22 @@ exports.signup = async (req, res, next) => {
     const otp = user.generateOTP();
     await user.save();
 
-    console.log(`✨ [Auth] User saved in MongoDB: ${user.email} (isVerified: false)`);
+    console.log(`✨ [Auth] Account recorded in MongoDB: ${user.email} (Pending verification)`);
 
-    // Dispatch OTP email
+    // Send OTP email to client's inbox
     const emailResult = await sendOTPEmail(user.email, user.name, otp);
+
+    if (!emailResult.success) {
+      return res.status(500).json({
+        success: false,
+        message: 'Could not deliver verification email to this address. Please verify your email and try again.',
+      });
+    }
 
     return res.status(201).json({
       success: true,
-      message: emailResult.success
-        ? 'Account created! Please check your email for the 6-digit verification code.'
-        : 'Account created in database! Verification code ready.',
+      message: 'Account created! Please check your email inbox for your 6-digit verification code.',
       email: user.email,
-      emailSent: emailResult.success,
-      devOtp: emailResult.success ? undefined : otp,
     });
   } catch (error) {
     next(error);
@@ -72,7 +75,7 @@ exports.verifyOtp = async (req, res, next) => {
     const { email, otp } = req.body;
 
     if (!email || !otp) {
-      return res.status(400).json({ success: false, message: 'Email and 6-digit OTP code are required.' });
+      return res.status(400).json({ success: false, message: 'Email address and 6-digit verification code are required.' });
     }
 
     const cleanEmail = email.toLowerCase().trim();
@@ -89,7 +92,7 @@ exports.verifyOtp = async (req, res, next) => {
     if (!user.otp || !user.otpExpiry) {
       return res.status(400).json({
         success: false,
-        message: 'No active verification code found. Please click Resend OTP for a fresh code.',
+        message: 'No active verification code found. Please click Resend Code for a fresh OTP.',
       });
     }
 
@@ -97,7 +100,7 @@ exports.verifyOtp = async (req, res, next) => {
     if (new Date() > user.otpExpiry) {
       return res.status(400).json({
         success: false,
-        message: 'This verification code has expired. Please click Resend OTP to receive a new one.',
+        message: 'This verification code has expired. Please click Resend Code for a fresh code.',
       });
     }
 
@@ -105,7 +108,7 @@ exports.verifyOtp = async (req, res, next) => {
     if (!user.verifyOTP(otp.trim())) {
       return res.status(400).json({
         success: false,
-        message: 'Incorrect 6-digit code. Please verify the code and try again.',
+        message: 'Incorrect 6-digit code. Please check your email inbox and try again.',
       });
     }
 
@@ -165,13 +168,16 @@ exports.resendOtp = async (req, res, next) => {
 
     const emailResult = await sendOTPEmail(user.email, user.name, otp);
 
+    if (!emailResult.success) {
+      return res.status(500).json({
+        success: false,
+        message: 'Failed to dispatch email. Please try again in a few moments.',
+      });
+    }
+
     return res.status(200).json({
       success: true,
-      message: emailResult.success
-        ? 'A fresh 6-digit code has been sent to your email.'
-        : 'A fresh verification code has been generated.',
-      emailSent: emailResult.success,
-      devOtp: emailResult.success ? undefined : otp,
+      message: 'A fresh 6-digit verification code has been sent to your email inbox.',
     });
   } catch (error) {
     next(error);
@@ -199,20 +205,18 @@ exports.login = async (req, res, next) => {
       return res.status(401).json({ success: false, message: 'Invalid email or password.' });
     }
 
-    // If account has not verified email yet, issue fresh OTP and redirect
+    // If account has not verified email yet, issue fresh OTP to their email and redirect
     if (!user.isVerified) {
       const otp = user.generateOTP();
       await user.save({ validateBeforeSave: false });
 
-      const emailResult = await sendOTPEmail(user.email, user.name, otp);
+      await sendOTPEmail(user.email, user.name, otp);
 
       return res.status(403).json({
         success: false,
-        message: 'Your account requires email verification before accessing the portal.',
+        message: 'Your account requires email verification. We have sent a 6-digit code to your inbox.',
         needsVerification: true,
         email: user.email,
-        emailSent: emailResult.success,
-        devOtp: emailResult.success ? undefined : otp,
       });
     }
 
@@ -263,7 +267,7 @@ exports.updateProfile = async (req, res, next) => {
 
     return res.status(200).json({
       success: true,
-      message: 'Profile updated successfully in the celestial records! ✦',
+      message: 'Profile updated successfully! ✦',
       user: {
         id: user._id,
         name: user.name,

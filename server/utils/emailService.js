@@ -26,17 +26,16 @@ const createTransporter = () => {
 };
 
 /**
- * Send OTP verification email to a client.
+ * Send OTP verification email directly to client inbox.
  * Returns { success: boolean, message: string }
  */
 const sendOTPEmail = async (toEmail, toName, otp) => {
   if (!isEmailConfigured()) {
-    console.log(`ℹ️ [Email Service] Live email sending is not configured (EMAIL_USER is placeholder in .env).`);
-    console.log(`🔑 [DEV OTP] Verification code for ${toEmail}: ${otp}`);
+    console.error(`❌ [Email Service] EMAIL_USER or EMAIL_PASS not configured in .env.`);
     return {
       success: false,
       configured: false,
-      message: 'Email service credentials not configured. Using development OTP mode.',
+      message: 'Email service credentials not configured.',
     };
   }
 
@@ -45,6 +44,7 @@ const sendOTPEmail = async (toEmail, toName, otp) => {
   <html>
   <head>
     <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <style>
       body { margin:0; padding:0; background:#0d0618; font-family: Georgia, 'Times New Roman', serif; color:#ffffff; }
       .wrapper { max-width:540px; margin:40px auto; background:linear-gradient(145deg,#1e0f40,#130a2a); border:1px solid rgba(212,168,83,0.3); border-radius:16px; overflow:hidden; box-shadow:0 12px 40px rgba(0,0,0,0.6); }
@@ -94,8 +94,7 @@ const sendOTPEmail = async (toEmail, toName, otp) => {
     console.log(`✅ [Email Service] OTP successfully delivered to: ${toEmail}`);
     return { success: true, configured: true, message: 'OTP sent to email.' };
   } catch (error) {
-    console.error(`⚠️ [Email Service] Failed to send email to ${toEmail}:`, error.message);
-    console.log(`🔑 [DEV OTP] Verification code for ${toEmail}: ${otp}`);
+    console.error(`❌ [Email Service] Failed to send email to ${toEmail}:`, error.message);
     return {
       success: false,
       configured: true,

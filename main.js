@@ -178,8 +178,6 @@
         } else if (data.needsVerification) {
           // Redirect to OTP verification page
           sessionStorage.setItem('pending_otp_email', data.email || email);
-          if (data.devOtp) sessionStorage.setItem('pending_dev_otp', data.devOtp);
-          else sessionStorage.removeItem('pending_dev_otp');
           showFormError(loginForm, data.message || 'Email not verified. Redirecting to verification…');
           setTimeout(() => { window.location.href = 'verify.html'; }, 1300);
         } else {
@@ -216,8 +214,6 @@
         if (res.ok && data.success) {
           // Save email for OTP page and redirect
           sessionStorage.setItem('pending_otp_email', data.email || email);
-          if (data.devOtp) sessionStorage.setItem('pending_dev_otp', data.devOtp);
-          else sessionStorage.removeItem('pending_dev_otp');
           showFormSuccess(signupForm, `${data.message || 'Account created!'} Redirecting…`);
           setTimeout(() => { window.location.href = 'verify.html'; }, 1300);
         } else {

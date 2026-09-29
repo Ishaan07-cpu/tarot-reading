@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login — Ek Raaz Ki Baat Batau?</title>
+  <meta name="description" content="Login to your Ek Raaz Ki Baat Batau? account to manage your tarot reading appointments." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Cinzel:wght@400;600;700&family=Raleway:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .form-msg {
+      padding: 0.75rem 1rem;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      margin-bottom: 1rem;
+      text-align: center;
+    }
+    .form-msg.error   { background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.4); color: #fca5a5; }
+    .form-msg.success { background: rgba(52,211,153,0.15); border: 1px solid rgba(52,211,153,0.4); color: #6ee7b7; }
+    .password-wrapper { position: relative; }
+    .toggle-pwd {
+      position: absolute;
+      right: 0.9rem;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      color: var(--gold-dim);
+      cursor: pointer;
+      font-size: 1rem;
+      transition: color 0.2s;
+    }
+    .toggle-pwd:hover { color: var(--gold-light); }
+
+  </style>
+</head>
+<body>
+  <canvas id="starCanvas"></canvas>
+
+  <a href="index.html" class="back-link">← Back to Home</a>
+
+  <div class="auth-page">
+    <div class="auth-container reveal">
+      <div class="auth-logo">✦</div>
+      <h1 class="auth-title">Welcome Back</h1>
+      <p class="auth-subtitle">Enter your sacred space and continue your journey with the cosmos.</p>
+
+      <form id="loginForm" novalidate>
+        <div class="form-group">
+          <label class="form-label" for="loginEmail">Email Address</label>
+          <input
+            class="form-input"
+            type="email"
+            id="loginEmail"
+            name="email"
+            placeholder="you@example.com"
+            autocomplete="email"
+            required
+          />
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="loginPassword">Password</label>
+          <div class="password-wrapper">
+            <input
+              class="form-input"
+              type="password"
+              id="loginPassword"
+              name="password"
+              placeholder="Your secret password"
+              autocomplete="current-password"
+              required
+            />
+            <button type="button" class="toggle-pwd" id="toggleLoginPwd" aria-label="Toggle password visibility">👁</button>
+          </div>
+        </div>
+        <button type="submit" class="btn-submit" id="loginSubmitBtn">Enter the Portal</button>
+      </form>
+
+      <div class="auth-divider"><span>or</span></div>
+
+      <p class="auth-footer">
+        New to the cosmos? <a href="signup.html">Create an account ✦</a>
+      </p>
+    </div>
+  </div>
+
+  <script src="main.js"></script>
+  <script>
+    // Toggle password visibility
+    const toggleBtn = document.getElementById('toggleLoginPwd');
+    const pwdInput  = document.getElementById('loginPassword');
+    if (toggleBtn && pwdInput) {
+      toggleBtn.addEventListener('click', () => {
+        const isHidden = pwdInput.type === 'password';
+        pwdInput.type  = isHidden ? 'text' : 'password';
+        toggleBtn.textContent = isHidden ? '🙈' : '👁';
+      });
+    }
+  </script>
+</body>
+</html>

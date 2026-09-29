@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Profile — Ek Raaz Ki Baat Batau?</title>
+  <meta name="description" content="Manage your Ek Raaz Ki Baat Batau? profile, view your readings, and update your account details." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Cinzel:wght@400;600;700&family=Raleway:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    /* ── Profile Page Layout ── */
+    .profile-page {
+      min-height: 100vh;
+      padding: 100px 0 60px;
+      position: relative;
+      z-index: 2;
+    }
+    .profile-grid {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 0 1.5rem;
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      gap: 1.5rem;
+      align-items: start;
+    }
+    @media (max-width: 720px) {
+      .profile-grid { grid-template-columns: 1fr; }
+    }
+
+    /* ── Sidebar Card ── */
+    .profile-sidebar {
+      background: linear-gradient(145deg, rgba(30,15,64,0.9), rgba(19,10,42,0.95));
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 2rem 1.5rem;
+      text-align: center;
+      position: sticky;
+      top: 90px;
+    }
+    .avatar-circle {
+      width: 90px;
+      height: 90px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--gold), #a855f7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-display);
+      font-size: 2.2rem;
+      font-weight: 900;
+      color: #0d0618;
+      margin: 0 auto 1.2rem;
+      box-shadow: 0 0 30px rgba(212,168,83,0.4);
+    }
+    .profile-name {
+      font-family: var(--font-serif);
+      font-size: 1.1rem;
+      color: var(--gold-light);
+      margin-bottom: 0.3rem;
+    }
+    .profile-email {
+      font-size: 0.78rem;
+      color: var(--white-dim);
+      margin-bottom: 1.2rem;
+      word-break: break-all;
+    }
+    .profile-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      background: rgba(52,211,153,0.12);
+      border: 1px solid rgba(52,211,153,0.35);
+      color: #6ee7b7;
+      font-size: 0.72rem;
+      letter-spacing: 0.08em;
+      padding: 0.3rem 0.75rem;
+      border-radius: 50px;
+      margin-bottom: 1.5rem;
+    }
+    .sidebar-nav { display: flex; flex-direction: column; gap: 0.4rem; }
+    .sidebar-nav-btn {
+      background: none;
+      border: 1px solid transparent;
+      color: var(--white-dim);
+      font-family: var(--font-serif);
+      font-size: 0.82rem;
+      letter-spacing: 0.08em;
+      padding: 0.65rem 1rem;
+      border-radius: 8px;
+      cursor: pointer;
+      text-align: left;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+    .sidebar-nav-btn:hover { background: rgba(212,168,83,0.08); color: var(--gold-light); }
+    .sidebar-nav-btn.active { background: rgba(212,168,83,0.12); border-color: var(--border-bright); color: var(--gold-light); }
+    .sidebar-logout {
+      margin-top: 1.2rem;
+      width: 100%;
+      background: rgba(239,68,68,0.1);
+      border: 1px solid rgba(239,68,68,0.3);
+      color: #fca5a5;
+      font-family: var(--font-serif);
+      font-size: 0.8rem;
+      padding: 0.6rem;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .sidebar-logout:hover { background: rgba(239,68,68,0.2); }
+
+    /* ── Main Panel ── */
+    .profile-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+    .profile-card {
+      background: linear-gradient(145deg, rgba(30,15,64,0.85), rgba(19,10,42,0.9));
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 2rem;
+      display: none;
+    }
+    .profile-card.active { display: block; }
+    .card-title {
+      font-family: var(--font-serif);
+      font-size: 1rem;
+      color: var(--gold-light);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 1.5rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    /* ── Stats Row ── */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+    @media (max-width: 500px) { .stats-row { grid-template-columns: 1fr 1fr; } }
+    .stat-box {
+      background: rgba(212,168,83,0.06);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1rem;
+      text-align: center;
+    }
+    .stat-num { font-family: var(--font-display); font-size: 1.8rem; font-weight: 900; color: var(--gold-light); }
+    .stat-label { font-size: 0.72rem; color: var(--white-dim); letter-spacing: 0.08em; margin-top: 0.2rem; text-transform: uppercase; }
+
+    /* ── Forms ── */
+    .form-msg {
+      padding: 0.75rem 1rem; border-radius: 8px; font-size: 0.85rem;
+      margin-bottom: 1rem; text-align: center;
+    }
+    .form-msg.error   { background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.4); color: #fca5a5; }
+    .form-msg.success { background: rgba(52,211,153,0.15); border: 1px solid rgba(52,211,153,0.4); color: #6ee7b7; }
+
+    .profile-form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+    @media (max-width: 560px) { .profile-form-grid { grid-template-columns: 1fr; } }
+    .profile-form-grid .full { grid-column: 1 / -1; }
+
+    /* ── Booking cards in profile ── */
+    .booking-card {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.1rem 1.3rem;
+      margin-bottom: 0.8rem;
+    }
+    .booking-card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; }
+    .booking-service-title { font-family: var(--font-serif); font-size: 0.88rem; color: var(--gold-light); }
+    .status-badge { font-size: 0.7rem; letter-spacing: 0.08em; text-transform: uppercase; padding: 0.25rem 0.6rem; border-radius: 50px; }
+    .status-pending   { background: rgba(234,179,8,0.15); color: #fde047; border: 1px solid rgba(234,179,8,0.3); }
+    .status-confirmed { background: rgba(52,211,153,0.15); color: #6ee7b7; border: 1px solid rgba(52,211,153,0.3); }
+    .status-cancelled { background: rgba(239,68,68,0.12); color: #fca5a5; border: 1px solid rgba(239,68,68,0.3); }
+    .booking-meta { display: flex; flex-wrap: wrap; gap: 0.6rem 1.2rem; font-size: 0.8rem; color: var(--white-dim); margin-bottom: 0.5rem; }
+    .booking-footer { display: flex; justify-content: space-between; align-items: center; font-size: 0.75rem; color: var(--white-dim); margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px solid var(--border); }
+    .btn-cancel-appt {
+      background: none; border: 1px solid rgba(239,68,68,0.4);
+      color: #fca5a5; font-size: 0.75rem; padding: 0.3rem 0.8rem;
+      border-radius: 6px; cursor: pointer; transition: all 0.2s;
+    }
+    .btn-cancel-appt:hover { background: rgba(239,68,68,0.12); }
+    .empty-state { text-align: center; padding: 2rem; color: var(--white-dim); font-size: 0.9rem; }
+    .empty-state .empty-icon { font-size: 2.5rem; margin-bottom: 0.8rem; }
+
+    /* ── Password form ── */
+    .password-wrapper { position: relative; }
+    .toggle-pwd {
+      position: absolute; right: 0.9rem; top: 50%;
+      transform: translateY(-50%);
+      background: none; border: none;
+      color: var(--gold-dim); cursor: pointer;
+      font-size: 1rem; transition: color 0.2s;
+    }
+    .toggle-pwd:hover { color: var(--gold-light); }
+  </style>
+</head>
+<body>
+  <canvas id="starCanvas"></canvas>
+
+  <!-- ✦ Navbar ✦ -->
+  <nav class="navbar" id="navbar">
+    <div class="nav-container">
+      <a class="nav-logo" href="index.html">✦ Tarot</a>
+      <button class="hamburger" id="hamburger" aria-label="Toggle menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+      <ul class="nav-links" id="navLinks" role="list">
+        <li><a class="nav-link" href="index.html">Home</a></li>
+        <li><a class="nav-link" href="index.html#about">About</a></li>
+        <li><a class="nav-link" href="index.html#services">Services</a></li>
+        <li><a class="nav-link" href="appointment.html">Book</a></li>
+      </ul>
+      <div class="nav-actions" id="navActions">
+        <a href="login.html" class="btn-ghost">Login</a>
+        <a href="signup.html" class="btn-primary">Sign Up</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="profile-page">
+    <div class="profile-grid">
+
+      <!-- ── Sidebar ── -->
+      <aside class="profile-sidebar">
+        <div class="avatar-circle" id="avatarCircle">✦</div>
+        <div class="profile-name" id="sidebarName">Loading…</div>
+        <div class="profile-email" id="sidebarEmail"></div>
+        <div class="profile-badge">✦ Verified Member</div>
+        <nav class="sidebar-nav">
+          <button class="sidebar-nav-btn active" data-tab="overview" id="btnOverview">📊 Overview</button>
+          <button class="sidebar-nav-btn" data-tab="bookings" id="btnBookings">🔮 My Readings</button>
+          <button class="sidebar-nav-btn" data-tab="settings" id="btnSettings">✏️ Edit Profile</button>
+          <button class="sidebar-nav-btn" data-tab="password" id="btnPassword">🔒 Change Password</button>
+        </nav>
+        <button class="sidebar-logout" id="logoutBtnProfile">Logout</button>
+      </aside>
+
+      <!-- ── Main Panel ── -->
+      <main class="profile-panel">
+
+        <!-- Overview Tab -->
+        <div class="profile-card active" id="tabOverview">
+          <div class="card-title">📊 Overview</div>
+          <div class="stats-row">
+            <div class="stat-box">
+              <div class="stat-num" id="statTotal">—</div>
+              <div class="stat-label">Total Readings</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-num" id="statPending">—</div>
+              <div class="stat-label">Upcoming</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-num" id="statDone">—</div>
+              <div class="stat-label">Completed</div>
+            </div>
+          </div>
+          <p style="font-size:0.85rem; color:var(--white-dim); line-height:1.7; margin-bottom:1.2rem;">
+            Welcome to your sacred space. Here you can view your reading history, manage appointments, and update your profile. The cosmos remembers every session.
+          </p>
+          <a href="appointment.html" class="btn-submit" style="display:inline-block; width:auto; padding:0.75rem 2rem; text-align:center; text-decoration:none;">
+            🔮 Book a New Reading
+          </a>
+        </div>
+
+        <!-- My Readings Tab -->
+        <div class="profile-card" id="tabBookings">
+          <div class="card-title">🔮 My Readings</div>
+          <div id="profileBookingsList">
+            <div class="empty-state"><p>Loading your readings…</p></div>
+          </div>
+        </div>
+
+        <!-- Edit Profile Tab -->
+        <div class="profile-card" id="tabSettings">
+          <div class="card-title">✏️ Edit Profile</div>
+          <form id="profileForm" novalidate>
+            <div class="profile-form-grid">
+              <div class="form-group">
+                <label class="form-label" for="profName">Full Name</label>
+                <input class="form-input" type="text" id="profName" placeholder="Your name" />
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="profEmail">Email Address</label>
+                <input class="form-input" type="email" id="profEmail" disabled style="opacity:0.5; cursor:not-allowed;" />
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="profPhone">Phone (optional)</label>
+                <input class="form-input" type="tel" id="profPhone" placeholder="+91 00000 00000" />
+              </div>
+              <div class="form-group full">
+                <label class="form-label" for="profBio">About You (optional)</label>
+                <textarea class="form-input" id="profBio" rows="3" maxlength="200" placeholder="A short note about yourself…" style="resize:vertical;"></textarea>
+              </div>
+            </div>
+            <button type="submit" class="btn-submit" id="saveProfileBtn" style="margin-top:0.5rem;">Save Changes</button>
+          </form>
+        </div>
+
+        <!-- Change Password Tab -->
+        <div class="profile-card" id="tabPassword">
+          <div class="card-title">🔒 Change Password</div>
+          <form id="changePasswordForm" novalidate>
+            <div class="form-group">
+              <label class="form-label" for="curPwd">Current Password</label>
+              <div class="password-wrapper">
+                <input class="form-input" type="password" id="curPwd" placeholder="Current password" />
+                <button type="button" class="toggle-pwd" data-target="curPwd">👁</button>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="newPwd">New Password</label>
+              <div class="password-wrapper">
+                <input class="form-input" type="password" id="newPwd" placeholder="New password (min 6 chars)" />
+                <button type="button" class="toggle-pwd" data-target="newPwd">👁</button>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="confirmPwd">Confirm New Password</label>
+              <div class="password-wrapper">
+                <input class="form-input" type="password" id="confirmPwd" placeholder="Repeat new password" />
+                <button type="button" class="toggle-pwd" data-target="confirmPwd">👁</button>
+              </div>
+            </div>
+            <button type="submit" class="btn-submit" id="changePwdBtn">Update Password</button>
+          </form>
+        </div>
+
+      </main>
+    </div>
+  </div>
+
+  <script src="main.js"></script>
+  <script>
+    // ── Auth guard ───────────────────────────────────────────────
+    const token = localStorage.getItem('tarot_token');
+    const user  = JSON.parse(localStorage.getItem('tarot_user') || 'null');
+    if (!token || !user) {
+      window.location.href = 'login.html';
+    }
+
+    function populateUserData(u) {
+      if (!u) return;
+      const initials = (u.name || 'User').split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
+      document.getElementById('avatarCircle').textContent = initials;
+      document.getElementById('sidebarName').textContent  = u.name || 'Seeker';
+      document.getElementById('sidebarEmail').textContent = u.email || '';
+      document.getElementById('profName').value  = u.name || '';
+      document.getElementById('profEmail').value = u.email || '';
+      document.getElementById('profPhone').value = u.phone || '';
+      document.getElementById('profBio').value   = u.bio   || '';
+    }
+
+    if (user) populateUserData(user);
+
+    // Fetch fresh user record from MongoDB
+    async function refreshUser() {
+      try {
+        const res = await fetch('/api/auth/me', { headers: { Authorization: `Bearer ${token}` } });
+        const data = await res.json();
+        if (data.success && data.user) {
+          localStorage.setItem('tarot_user', JSON.stringify(data.user));
+          populateUserData(data.user);
+        }
+      } catch (e) {}
+    }
+    refreshUser();
+
+    // ── Tab switching ─────────────────────────────────────────────
+    const tabs = { overview: 'tabOverview', bookings: 'tabBookings', settings: 'tabSettings', password: 'tabPassword' };
+    document.querySelectorAll('.sidebar-nav-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const tab = btn.dataset.tab;
+        document.querySelectorAll('.sidebar-nav-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.profile-card').forEach(c => c.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById(tabs[tab]).classList.add('active');
+        if (tab === 'bookings') loadBookings();
+        if (tab === 'overview') loadStats();
+      });
+    });
+
+    // ── Load stats ────────────────────────────────────────────────
+    async function loadStats() {
+      try {
+        const res  = await fetch('/api/appointments/my', { headers: { Authorization: `Bearer ${token}` } });
+        const data = await res.json();
+        if (data.success && data.appointments) {
+          const appts = data.appointments;
+          document.getElementById('statTotal').textContent   = appts.length;
+          document.getElementById('statPending').textContent = appts.filter(a => a.status === 'pending' || a.status === 'confirmed').length;
+          document.getElementById('statDone').textContent    = appts.filter(a => a.status === 'completed').length;
+        }
+      } catch {}
+    }
+    loadStats();
+
+    // ── Load bookings ─────────────────────────────────────────────
+    async function loadBookings() {
+      const list = document.getElementById('profileBookingsList');
+      list.innerHTML = '<div class="empty-state"><p>Loading…</p></div>';
+      try {
+        const res  = await fetch('/api/appointments/my', { headers: { Authorization: `Bearer ${token}` } });
+        const data = await res.json();
+        if (!data.success || !data.appointments?.length) {
+          list.innerHTML = `<div class="empty-state"><div class="empty-icon">🔮</div><p>No readings booked yet.</p><br/><a href="appointment.html" class="btn-submit" style="display:inline-block;padding:0.6rem 1.5rem;text-decoration:none;">Book Your First Reading</a></div>`;
+          return;
+        }
+        list.innerHTML = data.appointments.map(a => {
+          const isCancelled = a.status === 'cancelled';
+          const fDate = new Date(a.date + 'T00:00:00').toLocaleDateString(undefined, { weekday:'short', year:'numeric', month:'short', day:'numeric' });
+          return `
+            <div class="booking-card" id="bc-${a._id}">
+              <div class="booking-card-header">
+                <span class="booking-service-title">🔮 ${a.service}</span>
+                <span class="status-badge status-${a.status}">${a.status}</span>
+              </div>
+              <div class="booking-meta">
+                <span>📅 ${fDate}</span>
+                <span>⏰ ${a.time}</span>
+              </div>
+              ${a.message ? `<p style="font-size:0.8rem;color:rgba(255,255,255,0.6);font-style:italic;">"${a.message}"</p>` : ''}
+              <div class="booking-footer">
+                <span>Booked ${new Date(a.createdAt).toLocaleDateString()}</span>
+                ${!isCancelled ? `<button class="btn-cancel-appt" data-id="${a._id}">Cancel</button>` : '<span style="color:#fca5a5">Cancelled</span>'}
+              </div>
+            </div>`;
+        }).join('');
+
+        list.querySelectorAll('.btn-cancel-appt').forEach(btn => {
+          btn.addEventListener('click', async () => {
+            if (!confirm('Cancel this reading session?')) return;
+            btn.disabled = true; btn.textContent = 'Cancelling…';
+            try {
+              const r = await fetch(`/api/appointments/${btn.dataset.id}/cancel`, { method: 'PATCH', headers: { Authorization: `Bearer ${token}` } });
+              const d = await r.json();
+              if (r.ok && d.success) loadBookings();
+              else { alert(d.message || 'Could not cancel.'); btn.disabled = false; btn.textContent = 'Cancel'; }
+            } catch { alert('Error cancelling.'); btn.disabled = false; btn.textContent = 'Cancel'; }
+          });
+        });
+      } catch {
+        list.innerHTML = '<div class="empty-state"><p style="color:#fca5a5">Could not load readings.</p></div>';
+      }
+    }
+
+    // ── Update Profile ─────────────────────────────────────────────
+    document.getElementById('profileForm').addEventListener('submit', async e => {
+      e.preventDefault();
+      const btn = document.getElementById('saveProfileBtn');
+      btn.disabled = true; btn.textContent = 'Saving…';
+      clearMsg('profileForm');
+      try {
+        const res  = await fetch('/api/auth/profile', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+          body: JSON.stringify({
+            name:  document.getElementById('profName').value.trim(),
+            phone: document.getElementById('profPhone').value.trim(),
+            bio:   document.getElementById('profBio').value.trim(),
+          }),
+        });
+        const data = await res.json();
+        if (data.success) {
+          localStorage.setItem('tarot_user', JSON.stringify(data.user));
+          document.getElementById('sidebarName').textContent = data.user.name;
+          const ini = data.user.name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
+          document.getElementById('avatarCircle').textContent = ini;
+          showMsg('profileForm', 'success', 'Profile updated! ✦');
+        } else {
+          showMsg('profileForm', 'error', data.message);
+        }
+      } catch { showMsg('profileForm', 'error', 'Could not save changes.'); }
+      btn.disabled = false; btn.textContent = 'Save Changes';
+    });
+
+    // ── Change Password ──────────────────────────────────────────
+    document.getElementById('changePasswordForm').addEventListener('submit', async e => {
+      e.preventDefault();
+      const btn = document.getElementById('changePwdBtn');
+      const cur = document.getElementById('curPwd').value;
+      const nw  = document.getElementById('newPwd').value;
+      const cf  = document.getElementById('confirmPwd').value;
+      clearMsg('changePasswordForm');
+      if (!cur || !nw || !cf) return showMsg('changePasswordForm', 'error', 'Please fill in all fields.');
+      if (nw !== cf) return showMsg('changePasswordForm', 'error', 'New passwords do not match.');
+      if (nw.length < 6) return showMsg('changePasswordForm', 'error', 'New password must be at least 6 characters.');
+      btn.disabled = true; btn.textContent = 'Updating…';
+      try {
+        const res  = await fetch('/api/auth/change-password', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+          body: JSON.stringify({ currentPassword: cur, newPassword: nw }),
+        });
+        const data = await res.json();
+        showMsg('changePasswordForm', data.success ? 'success' : 'error', data.message);
+        if (data.success) { document.getElementById('curPwd').value = ''; document.getElementById('newPwd').value = ''; document.getElementById('confirmPwd').value = ''; }
+      } catch { showMsg('changePasswordForm', 'error', 'Could not update password.'); }
+      btn.disabled = false; btn.textContent = 'Update Password';
+    });
+
+    // ── Toggle password visibility ───────────────────────────────
+    document.querySelectorAll('.toggle-pwd').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const inp = document.getElementById(btn.dataset.target);
+        inp.type = inp.type === 'password' ? 'text' : 'password';
+        btn.textContent = inp.type === 'password' ? '👁' : '🙈';
+      });
+    });
+
+    // ── Logout ───────────────────────────────────────────────────
+    document.getElementById('logoutBtnProfile').addEventListener('click', () => {
+      localStorage.removeItem('tarot_token');
+      localStorage.removeItem('tarot_user');
+      window.location.href = 'index.html';
+    });
+
+    // ── Helpers ───────────────────────────────────────────────────
+    function showMsg(formId, type, msg) {
+      clearMsg(formId);
+      const div = document.createElement('div');
+      div.className = `form-msg ${type}`;
+      div.textContent = msg;
+      document.getElementById(formId).prepend(div);
+      if (type === 'success') setTimeout(() => div.remove(), 4000);
+    }
+    function clearMsg(formId) {
+      document.getElementById(formId)?.querySelectorAll('.form-msg').forEach(el => el.remove());
+    }
+  </script>
+</body>
+</html>

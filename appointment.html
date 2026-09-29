@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Book an Appointment — Ek Raaz Ki Baat Batau?</title>
+  <meta name="description" content="Book your personalized tarot reading appointment with Ek Raaz Ki Baat Batau?. Choose your session type and preferred time." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Cinzel:wght@400;600;700&family=Raleway:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .form-msg {
+      padding: 0.75rem 1rem; border-radius: 8px;
+      font-size: 0.85rem; margin-bottom: 1rem; text-align: center;
+    }
+    .form-msg.error   { background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.4); color: #fca5a5; }
+    .form-msg.success { background: rgba(52,211,153,0.15); border: 1px solid rgba(52,211,153,0.4); color: #6ee7b7; }
+
+    .service-select-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.75rem;
+      margin-bottom: 1.3rem;
+    }
+    .service-option {
+      position: relative;
+    }
+    .service-option input[type="radio"] {
+      position: absolute; opacity: 0; width: 0; height: 0;
+    }
+    .service-option label {
+      display: flex; flex-direction: column; align-items: center;
+      gap: 0.4rem; padding: 1rem 0.5rem;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: all var(--transition);
+      text-align: center;
+      font-family: var(--font-serif);
+      font-size: 0.72rem;
+      letter-spacing: 0.05em;
+      color: var(--white-dim);
+    }
+    .service-option label .svc-icon { font-size: 1.5rem; }
+    .service-option input[type="radio"]:checked + label {
+      background: rgba(212,168,83,0.12);
+      border-color: var(--gold);
+      color: var(--gold-light);
+      box-shadow: 0 0 15px rgba(212,168,83,0.2);
+    }
+    .service-option label:hover {
+      background: rgba(212,168,83,0.07);
+      border-color: var(--gold-dim);
+    }
+    .appt-note {
+      background: rgba(212,168,83,0.08);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 1rem 1.2rem;
+      margin-top: 1rem;
+      font-size: 0.82rem;
+      color: var(--white-dim);
+      line-height: 1.6;
+    }
+    .appt-note strong { color: var(--gold-light); }
+    .appt-page-header {
+      text-align: center;
+      margin-bottom: 2.5rem;
+    }
+    .appt-page-header .hero-tagline {
+      display: flex; align-items: center; justify-content: center;
+      gap: 1rem; font-family: var(--font-serif); font-size: 0.7rem;
+      letter-spacing: 0.3em; color: var(--gold); text-transform: uppercase;
+      margin-bottom: 0.75rem;
+    }
+    /* Tabs */
+    .appt-tabs {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+    .appt-tab {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border);
+      color: var(--white-dim);
+      padding: 0.65rem 1.4rem;
+      border-radius: var(--radius-sm);
+      font-family: var(--font-serif);
+      font-size: 0.82rem;
+      letter-spacing: 0.08em;
+      cursor: pointer;
+      transition: all var(--transition);
+    }
+    .appt-tab:hover {
+      border-color: var(--gold-dim);
+      color: var(--gold-light);
+    }
+    .appt-tab.active {
+      background: rgba(212, 168, 83, 0.15);
+      border-color: var(--gold);
+      color: var(--gold-light);
+      box-shadow: 0 0 15px rgba(212, 168, 83, 0.25);
+    }
+    /* Booking Cards */
+    .booking-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    .booking-card {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 1.25rem 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      position: relative;
+      transition: all var(--transition);
+    }
+    .booking-card:hover {
+      border-color: var(--gold-dim);
+      background: rgba(255, 255, 255, 0.05);
+    }
+    .booking-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+    .booking-service-title {
+      font-family: var(--font-serif);
+      font-size: 1rem;
+      color: var(--gold-light);
+    }
+    .status-badge {
+      font-size: 0.7rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 0.25rem 0.65rem;
+      border-radius: 20px;
+      font-weight: 600;
+    }
+    .status-pending   { background: rgba(234, 179, 8, 0.15); color: #fde047; border: 1px solid rgba(234, 179, 8, 0.4); }
+    .status-confirmed { background: rgba(34, 197, 94, 0.15); color: #86efac; border: 1px solid rgba(34, 197, 94, 0.4); }
+    .status-completed { background: rgba(59, 130, 246, 0.15); color: #93c5fd; border: 1px solid rgba(59, 130, 246, 0.4); }
+    .status-cancelled { background: rgba(239, 68, 68, 0.15); color: #fca5a5; border: 1px solid rgba(239, 68, 68, 0.4); }
+    .booking-meta {
+      display: flex;
+      gap: 1.5rem;
+      color: var(--white-dim);
+      font-size: 0.85rem;
+      flex-wrap: wrap;
+    }
+    .booking-meta span {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+    .booking-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 0.5rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+      font-size: 0.78rem;
+      color: var(--white-dim);
+    }
+    .btn-cancel-appt {
+      background: none;
+      border: 1px solid rgba(239, 68, 68, 0.4);
+      color: #fca5a5;
+      padding: 0.35rem 0.8rem;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.72rem;
+      transition: all 0.2s;
+    }
+    .btn-cancel-appt:hover {
+      background: rgba(239, 68, 68, 0.2);
+    }
+    .empty-bookings {
+      text-align: center;
+      padding: 3rem 1rem;
+      color: var(--white-dim);
+    }
+    @media (max-width: 600px) {
+      .service-select-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
+</head>
+<body>
+  <canvas id="starCanvas"></canvas>
+  <a href="index.html" class="back-link">← Back to Home</a>
+
+  <div class="appt-page">
+    <div class="appt-page-header">
+      <p class="section-eyebrow" style="text-align:center">✦ Book a Session</p>
+      <h1 class="section-title centered">Reserve Your Reading</h1>
+      <p style="color:var(--white-dim);font-size:0.95rem;max-width:520px;margin:0 auto;">
+        Fill in the form below. Your appointment is recorded in our sacred database and will be confirmed within 24 hours.
+      </p>
+    </div>
+
+    <!-- Booking / My Appointments Tabs -->
+    <div class="appt-tabs">
+      <button type="button" class="appt-tab active" id="tabBook">✦ Reserve a Session</button>
+      <button type="button" class="appt-tab" id="tabMyBookings">📜 My Bookings</button>
+    </div>
+
+    <div class="appt-container reveal">
+
+      <!-- Success Message -->
+      <div id="successMsg" class="success-msg">
+        <div class="success-icon">🔮</div>
+        <h3>Your request is sent to the cosmos!</h3>
+        <p>
+          Your appointment has been secured in our sacred database.<br/><br/>
+          We will confirm your appointment within <strong style="color:var(--gold-light)">24 hours</strong>.<br/><br/>
+          The stars are aligning just for you. ✦
+        </p>
+        <div style="display:flex; gap:1rem; justify-content:center; margin-top:2rem;">
+          <button type="button" class="btn-cta-secondary" id="viewBookingsBtn">View My Bookings</button>
+          <a href="index.html" class="btn-cta-primary">← Return Home</a>
+        </div>
+      </div>
+
+      <!-- My Bookings Container (Hidden by default) -->
+      <div id="myBookingsContainer" style="display:none">
+        <div id="myBookingsList" class="booking-list">
+          <div class="empty-bookings">
+            <p>Consulting the celestial records...</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Appointment Form -->
+      <form id="appointmentForm" novalidate>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="apptName">Full Name *</label>
+            <input class="form-input" type="text" id="apptName" name="name" placeholder="Your name" required />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="apptEmail">Email Address *</label>
+            <input class="form-input" type="email" id="apptEmail" name="email" placeholder="you@example.com" required />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="apptPhone">Phone Number (optional)</label>
+          <input class="form-input" type="tel" id="apptPhone" name="phone" placeholder="+91 XXXXX XXXXX" />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Choose Your Reading *</label>
+          <div class="service-select-grid" role="radiogroup" aria-label="Reading type">
+            <div class="service-option">
+              <input type="radio" id="svc1" name="apptServiceRadio" value="Love &amp; Relationships (45 min)" />
+              <label for="svc1"><span class="svc-icon">🌹</span>Love &amp; Relationships</label>
+            </div>
+            <div class="service-option">
+              <input type="radio" id="svc2" name="apptServiceRadio" value="Life Path Reading (75 min)" checked />
+              <label for="svc2"><span class="svc-icon">🔮</span>Life Path Reading</label>
+            </div>
+            <div class="service-option">
+              <input type="radio" id="svc3" name="apptServiceRadio" value="Career &amp; Finance (45 min)" />
+              <label for="svc3"><span class="svc-icon">💼</span>Career &amp; Finance</label>
+            </div>
+            <div class="service-option">
+              <input type="radio" id="svc4" name="apptServiceRadio" value="Spiritual Guidance (60 min)" />
+              <label for="svc4"><span class="svc-icon">🌌</span>Spiritual Guidance</label>
+            </div>
+            <div class="service-option">
+              <input type="radio" id="svc5" name="apptServiceRadio" value="Monthly Forecast (30 min)" />
+              <label for="svc5"><span class="svc-icon">🌙</span>Monthly Forecast</label>
+            </div>
+            <div class="service-option">
+              <input type="radio" id="svc6" name="apptServiceRadio" value="Annual Spread (90 min)" />
+              <label for="svc6"><span class="svc-icon">⭐</span>Annual Spread</label>
+            </div>
+          </div>
+          <!-- Hidden input to reliably capture selected service -->
+          <input type="hidden" id="apptService" name="service" value="Life Path Reading (75 min)" />
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="apptDate">Preferred Date *</label>
+            <input class="form-input" type="date" id="apptDate" name="date" required />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="apptTime">Preferred Time *</label>
+            <select class="form-select" id="apptTime" name="time" required>
+              <option value="" disabled selected>Select a time slot</option>
+              <option value="10:00 AM">10:00 AM</option>
+              <option value="11:00 AM">11:00 AM</option>
+              <option value="12:00 PM">12:00 PM</option>
+              <option value="02:00 PM">02:00 PM</option>
+              <option value="03:00 PM">03:00 PM</option>
+              <option value="04:00 PM">04:00 PM</option>
+              <option value="05:00 PM">05:00 PM</option>
+              <option value="06:00 PM">06:00 PM</option>
+              <option value="07:00 PM">07:00 PM</option>
+              <option value="08:00 PM">08:00 PM</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="apptMessage">What would you like to explore? (optional)</label>
+          <textarea
+            class="form-textarea"
+            id="apptMessage"
+            name="message"
+            placeholder="Share what's on your mind — a question, a situation, or simply what you hope to gain from the reading…"
+          ></textarea>
+        </div>
+
+        <div class="appt-note">
+          <strong>📧 How it works:</strong> Submitting this form will open your email app with a pre-filled message to <strong>ekraazkibaat@gmail.com</strong>. Just hit send — we'll confirm your slot within 24 hours.
+        </div>
+
+        <button type="submit" class="btn-submit" id="apptSubmitBtn" style="margin-top:1.5rem">
+          ✦ Send My Appointment Request
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <script src="main.js"></script>
+  <script>
+    // Sync radio selection to hidden input
+    const serviceInput = document.getElementById('apptService');
+    const checkedRadio = document.querySelector('input[name="apptServiceRadio"]:checked');
+    if (checkedRadio && serviceInput) {
+      serviceInput.value = checkedRadio.value;
+    }
+    document.querySelectorAll('input[name="apptServiceRadio"]').forEach(radio => {
+      radio.addEventListener('change', () => {
+        if (serviceInput) serviceInput.value = radio.value;
+      });
+    });
+  </script>
+</body>
+</html>
